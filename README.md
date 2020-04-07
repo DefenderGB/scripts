@@ -1,2 +1,2 @@
 # Scripts
-Uploaded scripts that come my way
+This is a README. Thank you for reading me.
