@@ -50,13 +50,13 @@ nmap -T4 -sV --script vuln -p $ports $1 -o scan-vuln-script_$filename
 
 #Recommendation
 echo ""
-echo "==========="
+echo "=============="
 echo "Suggestions"
-echo "==========="
+echo "=============="
 
 if [[ "$ports" == *"80"* ]] ; then
 	echo ""
-	echo "===Port 80==="
+	echo "===Port 80 (HTTP)==="
 	echo "[Suggest] Force Browse using gobuster:"
         echo "sudo gobuster dir -u http://$1/ -w /opt/SecLists/Discovery/Web-Content/raft-small-words.txt -o gobuster.out -x html,php,t"
         echo "[Suggest] SQLi: (Capture request (burp) that may be vulnerable to SQLi and use)" 
@@ -65,11 +65,26 @@ if [[ "$ports" == *"80"* ]] ; then
         echo "nikto -h http://$1/"
 fi
 
-if [[ "$ports" == *"139"* ]] ; then
+if [[ "$ports" == *"443"* ]] ; then
 	echo ""
-	echo "===Port 139==="
+	echo "===Port 443 (HTTPS)==="
+	echo "[Suggest] Look over SSL certificate:"
+	echo "openssl s_client -connect $1:443 -showcerts"
+	echo "[Suggest] Look over SAN certificate:"
+	echo "openssl s_client -connect $1:443 | openssl x509 -noout -text | grep DNS:"
+fi
+
+if [[ "$ports" == *"139"* || "$ports" = *"445"* ]] ; then
+	echo ""
+	echo "===Port 139/445 (SMB)==="
 	echo "[Suggest] Use smbclient:"
 	echo "smbclient -N -L //$1//"
+	echo "[Suggest] Anonymous login & list shares:"
+	echo "smbclient -N -L //$1"
+	echo "[Suggest] NULL session:"
+	echo "rpcclient -U " " -N $1"
+	echo "[Suggest] nmap script to enumerate SMB Shares and Users:"
+	echo "nmap -p 139,445 -T4 --script=smb-enum-shares.nse,smb-enum-users.nse $1"
 fi
 
 #Clean up
