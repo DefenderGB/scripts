@@ -3,11 +3,11 @@
 ## UNIX Password Cracker
 Pasword cracker created from following Violent Python.
 
-## Nmap Scan
-This Bash script performs TCP nmap scans against a given IP or hostname for all ports (0-65535), runs a version scan and default scripts scan against open ports (-sV -sC), then run a vulnerable script scan against open ports (--script vuln). Each scan will be output their own nmap results (-o). 
+## NmapScan
+This bash script performs a TCP nmap scans against a given IP or hostname for all ports (0-65535) then runs a version scan and default scripts scan against open ports (-sV -sC). Each scan will be output their own nmap results (-o). Per my learnings, it will also post suggested tools to run for further enumeration.
 
-Usage: `sudo ./nmap_scan.sh 10.0.0.1`
+Usage: `sudo ./nmapscan.sh 10.0.0.1`
 
----
+ ![nmapscan example](example.png)
 
-More to come!
+## More to come
