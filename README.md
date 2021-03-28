@@ -10,4 +10,11 @@ Usage: `sudo ./nmapscan.sh 10.0.0.1`
 
  ![nmapscan example](example.png)
 
-## More to come
+## Sweeper
+This bash script performs a network scan that uses ICMP echo, timestamp, and netmask request discovery probes then outputs found targets using column and comma-separated.
+
+Usage: `./sweeper.sh 10.0.0.0/24`
+
+ ![sweeper example](sweeperexample.png)
+
+## More to come!
