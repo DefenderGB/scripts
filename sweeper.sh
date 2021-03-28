@@ -22,10 +22,10 @@ else
 fi
 
 #Nmap Scan with output
-nmap -PEPM -sP -n $1 -oG foundtargets 2>/dev/null
+nmap -PEPM -sP -n $1 -oG targets 1>/dev/null
 
 #Set variable
-ips="$(cat foundtargets)"
+ips="$(cat targets)"
 
 #Print Results
 echo "[+] Found Targets: (Comma seperated)"
