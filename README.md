@@ -8,7 +8,7 @@ This bash script performs a TCP nmap scans against a given IP or hostname for al
 
 Usage: `sudo ./nmapscan.sh 10.0.0.1`
 
- ![nmapscan example](example.png)
+ ![nmapscan example](example.PNG)
 
 ## Sweeper
 This bash script performs a network scan that uses ICMP echo, timestamp, and netmask request discovery probes then outputs found targets using column and comma-separated.
