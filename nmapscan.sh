@@ -59,9 +59,11 @@ if [[ "$ports" == *"80"* || "$ports" = *"8080"* ]] ; then
 	if [[ "$ports" = *"8080"* ]] ; then
 		echo "sudo gobuster dir -u http://$1:8080/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster-common.txt"
 		echo "sudo gobuster dir -u http://$1:8080/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster-full.txt"
+	fi
 	if [[ "$ports" = *"80"* ]] ; then
 		echo "sudo gobuster dir -u http://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster-common.txt"
     	echo "sudo gobuster dir -u http://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster-full.txt"
+	fi
     echo "[Suggest] SQLi: (Capture request (burp) that may be vulnerable to SQLi and use)" 
     echo "sqlmap -r login.req --batch"
     echo "[Suggest] Nikto VulnScan:"
