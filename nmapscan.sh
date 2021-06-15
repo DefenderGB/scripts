@@ -24,6 +24,7 @@ mkdir -p nmap
 #Port scan all ports, exports a nmap and port.txt file
 echo ""
 echo "Running 0-65535 port scan..."
+echo "nmap -p 0-65535 --min-rate=1000 -T4 $1"
 nmap -p 0-65535 --min-rate=1000 -T4 $1 -o nmap/portscan-$1| grep ^[0-9] | cut -d "/" -f 1 | tr "\n" "," | sed s/,$// > ports.txt
 echo "[+] Output in nmap/portscan-$1"
 
@@ -54,15 +55,16 @@ echo "[+] Enumeration suggestions"
 
 if [[ "$ports" == *"80"* || "$ports" = *"8080"* ]] ; then
 	mkdir -p gobuster
+	echo "[+] 'gobuster' directory created"
 	echo "===Port 80/8080 (HTTP)==="
 	echo "[Suggest] Run gobuster scans against web servers:"
 	if [[ "$ports" = *"8080"* ]] ; then
-		echo "sudo gobuster dir -u http://$1:8080/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster-common.txt"
-		echo "sudo gobuster dir -u http://$1:8080/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster-full.txt"
+		echo "sudo gobuster dir -u http://$1:8080/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster/common.txt"
+		echo "sudo gobuster dir -u http://$1:8080/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster/full.txt"
 	fi
 	if [[ "$ports" = *"80"* ]] ; then
-		echo "sudo gobuster dir -u http://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster-common.txt"
-    	echo "sudo gobuster dir -u http://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster-full.txt"
+		echo "sudo gobuster dir -u http://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster/common.txt"
+    	echo "sudo gobuster dir -u http://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster/full.txt"
 	fi
     echo "[Suggest] SQLi: (Capture request (burp) that may be vulnerable to SQLi and use)" 
     echo "sqlmap -r login.req --batch"
@@ -72,10 +74,11 @@ fi
 
 if [[ "$ports" == *"443"* ]] ; then
 	mkdir -p gobuster
+	echo "[+] 'gobuster' directory created"
 	echo "===Port 443 (HTTPS)==="
 	echo "[Suggest] Force Browse using gobuster (use -k to skip TLS verification check):"
-    echo "sudo gobuster dir -u https://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster-https-common.txt"
-	echo "sudo gobuster dir -u https://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster-https-full.txt"
+    echo "sudo gobuster dir -u https://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster/https-common.txt"
+	echo "sudo gobuster dir -u https://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster/https-full.txt"
 	echo "[Suggest] Look over SSL certificate:"
 	echo "openssl s_client -connect $1:443 -showcerts"
 	echo "[Suggest] Look over SAN certificate:"
