@@ -54,43 +54,49 @@ echo ""
 echo "[+] Enumeration suggestions"
 
 if [[ "$ports" == *"80"* || "$ports" = *"8080"* ]] ; then
-	mkdir -p gobuster
-	echo "[+] 'gobuster' directory created"
+	mkdir -p scans
+	echo "[+] 'scans' directory created"
 	echo "===Port 80/8080 (HTTP)==="
 	echo "[Suggest] Run gobuster scans against web servers:"
 	if [[ "$ports" = *"8080"* ]] ; then
-		echo "sudo gobuster dir -u http://$1:8080/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster/common.txt"
-		echo "sudo gobuster dir -u http://$1:8080/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster/full.txt"
+		echo "sudo gobuster dir -u http://$1:8080/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o scans/gb-common.txt"
+		echo "sudo gobuster dir -u http://$1:8080/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o scans/gb-full.txt"
 	fi
 	if [[ "$ports" = *"80"* ]] ; then
-		echo "sudo gobuster dir -u http://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster/common.txt"
-    	echo "sudo gobuster dir -u http://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster/full.txt"
+		echo "sudo gobuster dir -u http://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o scans/gb-common.txt"
+    	echo "sudo gobuster dir -u http://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o scans/gb-full.txt"
 	fi
     echo "[Suggest] SQLi: (Capture request (burp) that may be vulnerable to SQLi and use)" 
     echo "sqlmap -r login.req --batch"
     echo "[Suggest] Nikto VulnScan:"
     echo "nikto -h http://$1/"
+	echo "[Suggest] Wordpress Site:"
+	echo "Fast Scan: wpscan --url http://$1 -o scans/wpscan-fast.txt"
+	echo "Full Scan: wpscan --url http://$1 -e ap,at,cb,dbe -o scans/wpscan-full.txt"
 fi
 
 if [[ "$ports" == *"443"* ]] ; then
-	mkdir -p gobuster
-	echo "[+] 'gobuster' directory created"
+	mkdir -p scans
+	echo "[+] 'scans' directory created"
 	echo "===Port 443 (HTTPS)==="
 	echo "[Suggest] Force Browse using gobuster (use -k to skip TLS verification check):"
-    echo "sudo gobuster dir -u https://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o gobuster/https-common.txt"
-	echo "sudo gobuster dir -u https://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o gobuster/https-full.txt"
+    echo "sudo gobuster dir -u https://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o scans/gb-https-common.txt"
+	echo "sudo gobuster dir -u https://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o scans/gb-https-full.txt"
 	echo "[Suggest] Look over SSL certificate:"
 	echo "openssl s_client -connect $1:443 -showcerts"
 	echo "[Suggest] Look over SAN certificate:"
 	echo "openssl s_client -connect $1:443 | openssl x509 -noout -text | grep DNS:"
+	echo "[Suggest] Wordpress Site:"
+	echo "Fast Scan: wpscan --url http://$1 -o scans/wpscan-fast.txt"
+	echo "Full Scan: wpscan --url http://$1 -e ap,at,cb,dbe -o scans/wpscan-full.txt"
 fi
 
 if [[ "$full" == *"wordpress"* ]] ; then
 	echo "===Wordpress Detected==="
-	echo "[Suggest] Run wpscan:"
-	echo "wpscan --url http://$1 --enumerate ap,at,cb,dbe -o output -f cli-no-color"
-	echo "[Suggest] Possible bruteforce:"
-	echo "wpscan --url http://$1  --passwords /usr/share/wordlists/rockyou.txt --usernames admin --max-threads 50"
+	echo "[Suggest] WP enumerate users:"
+	echo "wpscan --url http://$1 --enumerate u -o scans/wpscan-users.txt"
+	echo "[Suggest] WP bruteforce:"
+	echo "wpscan --url http://$1  --passwords /usr/share/wordlists/rockyou.txt --usernames admin --max-threads 50 -o scans/wpscan-password.txt"
 fi
 
 if [[ "$ports" == *"119"* ]] ; then
