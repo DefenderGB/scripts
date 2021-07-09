@@ -59,11 +59,11 @@ if [[ "$ports" == *"80"* || "$ports" = *"8080"* ]] ; then
 	echo "===Port 80/8080 (HTTP)==="
 	echo "[Suggest] Run gobuster scans against web servers:"
 	if [[ "$ports" = *"8080"* ]] ; then
-		echo "sudo gobuster dir -u http://$1:8080/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o scans/gb-common.txt"
+		echo "sudo gobuster dir -u http://$1:8080/ -w /usr/share/seclists/Discovery/Web-Content/common.txt -o scans/gb-common.txt"
 		echo "sudo gobuster dir -u http://$1:8080/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o scans/gb-full.txt"
 	fi
 	if [[ "$ports" = *"80"* ]] ; then
-		echo "sudo gobuster dir -u http://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o scans/gb-common.txt"
+		echo "sudo gobuster dir -u http://$1/ -w /usr/share/seclists/Discovery/Web-Content/common.txt -o scans/gb-common.txt"
     	echo "sudo gobuster dir -u http://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o scans/gb-full.txt"
 	fi
     echo "[Suggest] SQLi: (Capture request (burp) that may be vulnerable to SQLi and use)" 
@@ -75,12 +75,26 @@ if [[ "$ports" == *"80"* || "$ports" = *"8080"* ]] ; then
 	echo "Full Scan: wpscan --url http://$1 -e ap,at,cb,dbe -o scans/wpscan-full.txt"
 fi
 
+if [[ "$ports" == *"53"* ]] ; then
+	mkdir -p scans
+	echo "[+] 'scans' directory created"
+	echo "===Port 53 (DNS)==="
+	echo "[Suggest] Brute Force sub-domains:"
+	echo "sudo gobuster dns -d <target domain> -r $1 -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -o scans/gb-dns-5000.txt"
+    echo "dnsenum --dnsserver $1 -f /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <target domain>"
+	echo "[Suggest] Try Zone Transfer:"
+	echo "dig axfr domain.com @$1"
+	echo "[Suggest] Reverse DNS resolution to enumerate IPs on a network:"
+	echo "fierce -dns-server $1 --range 10.0.0.0/24"
+
+fi
+
 if [[ "$ports" == *"443"* ]] ; then
 	mkdir -p scans
 	echo "[+] 'scans' directory created"
 	echo "===Port 443 (HTTPS)==="
 	echo "[Suggest] Force Browse using gobuster (use -k to skip TLS verification check):"
-    echo "sudo gobuster dir -u https://$1/ -w /opt/SecLists/Discovery/Web-Content/common.txt -o scans/gb-https-common.txt"
+    echo "sudo gobuster dir -u https://$1/ -w /usr/share/seclists/Discovery/Web-Content/common.txt -o scans/gb-https-common.txt"
 	echo "sudo gobuster dir -u https://$1/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,php,txt,tar,bak,gz,zip,jpg,png,pdf -o scans/gb-https-full.txt"
 	echo "[Suggest] Look over SSL certificate:"
 	echo "openssl s_client -connect $1:443 -showcerts"
@@ -107,6 +121,8 @@ fi
 
 if [[ "$ports" == *"139"* || "$ports" = *"445"* ]] ; then
 	echo "===Port 139/445 (SMB)==="
+	echo "[Suggest] Enumerate SMB shares and access:"
+	echo "crackmapexec smb $1 --shares"
 	echo "[Suggest] Enumerate SMB using nmap:"
 	echo "sudo nmap -sV --script smb-enum* -p 139,445 $1//"
 	echo "[Suggest] Use smbclient to list shares:"
@@ -145,6 +161,10 @@ echo "nmap -T4 -sV --script vuln -p $ports $1"
 nmap -T4 -sV --script vuln -p $ports $1 -o nmap/vulnscan-$1 > vuln.txt
 vuln="$(cat vuln.txt)"
 echo "[+] Output in nmap/vulnscan-$1"
+
+echo ""
+echo "[Suggest] Run a UDP port scan:"
+echo "masscan -pU:1-65535 $1 --rate=1000 -e tun0"
 
 #Clean up
 rm ports.txt
