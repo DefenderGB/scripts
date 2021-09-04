@@ -31,12 +31,8 @@ nmap -PEPM -sP -n $1 -oG nmap/targets 1>/dev/null
 ips="$(cat nmap/targets)"
 
 #Print Results
-echo "Found Targets: (Comma seperated)"
-echo $ips | tr "()" "\n" | grep 'Up Host' | cut -d ":" -f 3 | tr -d ' ' | tr "\\n" "," | sed 's/.$//' | sed -e '$a\'
-echo "Found Targets: (Columns)"
-echo $ips | tr "()" "\n" | grep 'Up Host' | cut -d ":" -f 3 | tr -d ' ' | column
-echo "Found Targets: (List)"
-echo $ips | tr "()" "\n" | grep 'Up Host' | cut -d ":" -f 3 | tr -d ' '
+echo "Found Targets:"
+cat nmap/targets | sed '1d;$d'  | cut -d ':' -f 2 | tr -d ' '| cut -f1 -d '('
 targetstring="$(echo '[+] Total Found Targets: ')"
 totalstring="$(echo [+] Total Found Targets:  $ips | tr '()' '\n' | tail -2 | head -1 | cut -d ' ' -f 1)"
 echo $targetstring $totalstring
