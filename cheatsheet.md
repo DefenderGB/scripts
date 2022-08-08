@@ -6,6 +6,9 @@ Quick nmap all TCP ports:
 Default nmap all TCP ports:
 `nmap -Pn -sCV -p- $IP`
 
+Default nmap against specific ports:
+`nmap -T4 -sV -sC -p 22,80 $IP`
+
 Nmap all TCP ports:
 `nmap -vv --reason -Pn -A --osscan-guess -sC --version-all -p- $IP`
 
@@ -24,7 +27,8 @@ Ffuf Directory Brute Force: (Fastest)
 `ffuf -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt:FUZZ -u http://$IP/FUZZ`
 
 Gobuster Directory Brute Force: (recommend first using common.txt wordlist)
-`gobuster dir -u http://$IP/ -t 10 -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -e -k -s "200,204,301,302,307,403,500" -x "txt,html,php,asp,aspx,jsp,txt" -z"`
+`gobuster dir -t 10 -w /usr/share/seclists/Discovery/Web-Content/common.txt -e -k -s "200,204,301,302,307,403,500" -x "txt,html,php,asp,aspx,jsp" -u http://$IP/`
+`gobuster dir -t 10 -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -e -k -s "200,204,301,302,307,403,500" -x "txt,html,php,asp,aspx,jsp" -u http://$IP/`
 
 Gobuster VHOST Brute Force:
 `gobuster vhost -u http:/$IP -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt`
@@ -113,7 +117,7 @@ ISC BIND - NoIP `/nic/update` to create our own dns record: (needs credentials, 
 
 Remote and local mysql:
 ```
-
+mysql -u username -h 10.0.0.1 -p
 mysql -u username -pPASSWORD -e "SELECT @@version;"
 ```
 
@@ -429,3 +433,15 @@ Crack shadow hash:
 `hashcat -m 500 hash.txt /usr/share/wordlists/rockyou.txt`
 
 Add to your public key to box: `echo '...' >> /root/.ssh/authorized_keys`
+
+# OSINT
+
+Intel Techniques OSINT Tools: https://inteltechniques.com/tools/index.html
+OSINT Framework: https://osintframework.com/
+Epieos Mail Checker: https://epieos.com/
+Username to social media checker: https://whatsmyname.app/
+Face Search Engine (guess age): http://www.pictriev.com/
+Location per image: Use Google Search by Image: https://images.google.com/
+Flight Tracking: https://www.adsbexchange.com/
+Twitter search operators: https://developer.twitter.com/en/docs/twitter-api/v1/rules-and-filtering/search-operators
+Whois Historic data: https://www.whoxy.com/
