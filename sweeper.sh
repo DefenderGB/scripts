@@ -25,7 +25,7 @@ fi
 mkdir -p nmap
 
 #Nmap Scan without output
-nmap -PEPM -sP -n $1 -oG nmap/targets 1>/dev/null
+nmap -sn -n $1 -oG nmap/targets 1>/dev/null
 
 #Set variable
 ips="$(cat nmap/targets)"
