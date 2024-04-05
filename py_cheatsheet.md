@@ -51,6 +51,15 @@ for url in urls:
         sys.exit()
 ```
 
+Disable HTTPS insecure cert warnings (InsecureRequestWarning) when using requests:
+```
+import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+print(requests.get('https://google.com',verify=False).text)
+```
+
 Base64 encode input:   
 ```
 import base64
@@ -81,6 +90,17 @@ import sys
 
 ip = sys.argv[1]
 port = sys.argv[2]
+```
+
+Handle checking string for Regex:
+```
+import re
+regex = re.compile(r'.*password.*')
+text = "this is a password: 123"
+if regex.search(text):
+   print("Contains word password!")
+else:
+   print("Doesn't contain word password.")
 ```
 
 Python BO fuzzing on terminal:   
