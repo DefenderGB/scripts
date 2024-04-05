@@ -24,3 +24,6 @@ rm -f /tmp/SecList.zip
 vncserver -localhost
 vncserver -kill :1
 # Edit vncserver per https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-vnc-on-ubuntu-20-04
+wget 'https://portswigger-cdn.net/burp/releases/download?product=community&version=2024.2.1.3&type=Linux' -O burp_community_install.sh
+# If have license switch above to ?product=pro&version=2024.2.1.3&type=Linux
+bash burp_community_install.sh
