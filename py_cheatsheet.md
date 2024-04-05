@@ -35,6 +35,22 @@ data = {'user':'admin','password':'admin'}
 res2 = (session.post(url,headers=headers,data=data)).json()
 ```
 
+Iterate through URLs in file:
+```
+import sys
+urls = open(str(sys.argv[1]), 'r')
+for url in urls:
+    u = url.strip() # To remove any /n that may cause issues
+    print(f"[*] Target: {url}")
+    try:
+        headers = {"Content-Type":"application/json","User-Agent":"Mozilla/5.0"}
+        res = request.get(u,headers=headers,data='{"hello":"world"}',timeout=10,verify=False)
+        print(f"Status Code: {res.status_code}\nResponse Text:\n{res.text}")
+    except Exception as e:
+        print(f"[-] Error: {e}")
+        sys.exit()
+```
+
 Base64 encode input:   
 ```
 import base64
