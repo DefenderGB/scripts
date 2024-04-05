@@ -200,5 +200,21 @@ except PermissionError:
 # You can do whatever you want at this point. You can inject into a request using session.get(url,cookies=cookiejar)
 print(cookiejar)
 ```
+
+Nicely Print a list in one line
+```
+mylist = ["apple", "banana", "cherry"]
+print(*mylist, sep='\n')
+```
+
+Iteract through list dictionary that has dictionaries values: i.e [{'best_songs':{'1':'Thriller','2':'TBD'}},{'best_games':{'1':'Tetris','2':'Pong'}]
+```
+list_dict = [{'name':'bob','attributes':{'life':10,'defense':5}},{'name':'roger','attributes':{'life':3,'defense':10}}]
+for dict in list_dict:
+    print(f"[*] Name: {dict['name']}")
+    for attr in dict['attributes']:
+        print(f"  [*] Attribute: {attr}")
+```
+
 Cheat sheets:   
 https://media-exp1.licdn.com/dms/document/C4E1FAQEiLwd0gtU6Og/feedshare-document-pdf-analyzed/0/1649395384023?e=2147483647&v=beta&t=PNX5mNjDqhIMwAvw7D2Y8x-A4_8LkLy7Z9jxnnvMDpo   
