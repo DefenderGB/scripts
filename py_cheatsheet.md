@@ -207,7 +207,7 @@ mylist = ["apple", "banana", "cherry"]
 print(*mylist, sep='\n')
 ```
 
-Iteract through list dictionary that has dictionaries values: i.e [{'best_songs':{'1':'Thriller','2':'TBD'}},{'best_games':{'1':'Tetris','2':'Pong'}]
+Iteract through list dictionary that has dictionaries values: i.e [{'best_songs':{'1':'Thriller','2':'TBD'}},{'best_games':{'1':'Tetris','2':'Pong'}}]
 ```
 list_dict = [{'name':'bob','attributes':{'life':10,'defense':5}},{'name':'roger','attributes':{'life':3,'defense':10}}]
 for dict in list_dict:
