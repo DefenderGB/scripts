@@ -3,7 +3,7 @@ echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sou
 apt update
 apt upgrade
 apt install -y nmap proxychains sshuttle pipx snapd python3-pip python3-venv python3-poetry xfce4 xfce4-goodies xfce4-settings tightvncserver apt-transport-https sublime-text golang hydra dnsrecon dnsenum smbmap ruby-dev terminator
-rm /usr/lib/python3.11/EXTERNALLY-MANAGED
+# mv /usr/lib/python3.11/EXTERNALLY-MANAGED /usr/lib/python3.11/EXTERNALLY-MANAGED.old # Fix if getting externally-managed-environment error
 #If on Ubuntu uncomment 3 below
 #snap install metasploit-framework # otherwise follow https://docs.rapid7.com/metasploit/installing-the-metasploit-framework/#installing-the-metasploit-framework-on-linux
 #snap install evil-winrm # otherwise gem install evil-winrm
