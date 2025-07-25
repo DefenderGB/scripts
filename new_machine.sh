@@ -27,3 +27,4 @@ vncserver -kill :1
 wget 'https://portswigger-cdn.net/burp/releases/download?product=community&version=2024.2.1.3&type=Linux' -O burp_community_install.sh
 # If have license switch above to ?product=pro&version=2024.2.1.3&type=Linux
 bash burp_community_install.sh
+# Windows BareBone install - WSL 2.0, Windows Terminal, WSL Kali w/ Win-KeX, Brave Browser, Visual Studio Code, VPN, Wireshark, ProcessorExplorer, Ghidra, IDA Pro, Python, JDK21, Nmap/Zenmap, Docker Desktop, Bloodhound
